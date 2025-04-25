@@ -11,11 +11,9 @@ import {
 import { UsersService } from './users.service';
 import { UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { RolesGuard } from 'src/shared/guards/roles.guard';
-import { Roles } from 'src/shared/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Public } from 'src/shared/decorators/public.decorator';
+import { Public, Roles, RolesGuard } from 'src/shared';
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')

@@ -6,4 +6,4 @@ import { RolesGuard } from './guards/roles.guard';
   providers: [RolesGuard],
   exports: [RolesGuard], // ¡exporta para que otros módulos puedan usarlo!
 })
-export class CommonModule {}
+export class SharedModule {}

@@ -6,17 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { config } from 'dotenv';
+import { jwtConfig } from 'src/shared';
 config();
 
 @Module({
-  imports: [
-    UsersModule,
-    PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
-    }),
-  ],
+  imports: [UsersModule, PassportModule, JwtModule.register(jwtConfig)],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
 })
