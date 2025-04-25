@@ -11,7 +11,7 @@ export class CreateLogDto {
   statusCode: number;
 
   @IsString()
-  userId: string;
+  user: any;
 
   @IsDate()
   timestamp: Date;

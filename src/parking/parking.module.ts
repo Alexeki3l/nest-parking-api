@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ParkingService } from './parking.service';
 import { ParkingController } from './parking.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,10 +14,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConfig } from 'src/shared';
 
 import { config } from 'dotenv';
+import { ScheduleModule } from '@nestjs/schedule';
 config();
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
+
     JwtModule.register(jwtConfig),
     TypeOrmModule.forFeature([Parking, Vehicle]),
     UsersModule,
@@ -23,6 +31,12 @@ config();
 })
 export class ParkingModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LogMiddleware).forRoutes(ParkingController);
+    consumer
+      .apply(LogMiddleware)
+      .exclude(
+        { path: 'parking', method: RequestMethod.GET },
+        { path: 'parking/(.*)', method: RequestMethod.GET },
+      )
+      .forRoutes(ParkingController);
   }
 }

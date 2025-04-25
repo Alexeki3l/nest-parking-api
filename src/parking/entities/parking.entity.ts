@@ -9,6 +9,9 @@ export class Parking {
   @Column()
   startDateTime: Date;
 
-  @ManyToOne(() => Vehicle, (vehicle) => vehicle.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.id, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
   vehicle: Vehicle;
 }

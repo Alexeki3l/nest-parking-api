@@ -1,4 +1,3 @@
-// src/parking/parking.service.ts
 import {
   BadRequestException,
   ConflictException,
@@ -25,7 +24,6 @@ export class ParkingService {
     private userRepository: Repository<User>,
   ) {}
 
-  // Crear un nuevo parking
   async reserveParking(
     createParkingDto: CreateParkingDto,
     userId: string,
@@ -104,6 +102,19 @@ export class ParkingService {
       throw new NotFoundException('No parking found');
     }
 
+    return parking;
+  }
+  async freeParking(id: string, userId: string): Promise<Parking> {
+    const parking = await this.parkingRepository.findOne({
+      where: { id, vehicle: { owner: { id: userId } } },
+      relations: ['vehicle', 'vehicle.owner'],
+    });
+
+    if (!parking) {
+      throw new NotFoundException('No parking found');
+    }
+
+    this.parkingRepository.delete(parking);
     return parking;
   }
 }

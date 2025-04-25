@@ -1,4 +1,3 @@
-// src/logs/schemas/log.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -13,8 +12,8 @@ export class Log extends Document {
   @Prop()
   statusCode: number;
 
-  @Prop()
-  userId?: string;
+  @Prop({ type: Object })
+  user: { id: string | null; role: string | null };
 
   @Prop()
   timestamp: Date;

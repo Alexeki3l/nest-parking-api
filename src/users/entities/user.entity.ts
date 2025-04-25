@@ -27,6 +27,9 @@ export class User {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CLIENTE })
   role: UserRole;
 
-  @OneToMany(() => Vehicle, (vehicle) => vehicle.owner)
+  @OneToMany(() => Vehicle, (vehicle) => vehicle.owner, {
+    onDelete: 'CASCADE',
+    cascade: true,
+  })
   vehicles: Vehicle[];
 }

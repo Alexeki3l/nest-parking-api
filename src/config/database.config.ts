@@ -12,6 +12,5 @@ export const databaseConfig: TypeOrmModuleOptions = {
   username: config.get<string>('DB_USERNAME'),
   password: config.get<string>('DB_PASSWORD'),
   database: config.get<string>('DB_NAME'),
-  // entities: [__dirname + './**/*.entity{.ts,.js}'],
   synchronize: config.get<string>('DB_SYNC') === 'true',
 };

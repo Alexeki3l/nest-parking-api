@@ -15,6 +15,9 @@ export class Vehicle {
   @Column()
   model: string;
 
-  @ManyToOne(() => User, (user) => user.vehicles, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.vehicles, {
+    onDelete: 'CASCADE',
+    // cascade: true,
+  })
   owner: User;
 }

@@ -45,4 +45,11 @@ export class ParkingController {
   async findOneReserve(@Param('id') id: string) {
     return await this.parkingService.findOneReserve(id);
   }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.CLIENTE)
+  @Delete('reserve/:id')
+  async removeReserve(@Req() req: any, @Param('id') id: string) {
+    return await this.parkingService.freeParking(id, req.user.userId);
+  }
 }
