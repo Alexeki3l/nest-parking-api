@@ -7,18 +7,22 @@ import {
   Put,
   Delete,
   UseGuards,
-  Req,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User, UserRole } from './entities/user.entity';
+import { UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { RolesGuard } from 'src/shared/guards/roles.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { Public } from 'src/shared/decorators/public.decorator';
 
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Public()
   @Post()
   async create(@Body() userData: CreateUserDto) {
     return await this.usersService.createUser(userData);
@@ -34,29 +38,17 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Put(':id')
-  update(
-    @Req() req: any,
-    @Param('id') id: string,
-    @Body() updateData: Partial<User>,
-  ) {
-    if (req.user.role !== UserRole.ADMIN) {
-      throw new UnauthorizedException(
-        'No tiene permiso para actualizar un usuario',
-      );
-    }
+  update(@Param('id') id: string, @Body() updateData: UpdateUserDto) {
     return this.usersService.update(id, updateData);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Delete(':id')
-  remove(@Req() req: any, @Param('id') id: string) {
-    if (req.user.role !== UserRole.ADMIN) {
-      throw new UnauthorizedException(
-        'No tiene permiso para eliminar un usuario',
-      );
-    }
+  remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
 }

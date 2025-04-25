@@ -15,7 +15,6 @@ export class AuthService {
     if (user && (await bcrypt.compare(pass, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
-      console.log(result);
       return result;
     }
     throw new UnauthorizedException('Credenciales incorrectas');
