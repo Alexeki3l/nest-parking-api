@@ -14,13 +14,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConfig } from 'src/shared';
 
 import { config } from 'dotenv';
-import { ScheduleModule } from '@nestjs/schedule';
 config();
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
-
     JwtModule.register(jwtConfig),
     TypeOrmModule.forFeature([Parking, Vehicle]),
     UsersModule,
