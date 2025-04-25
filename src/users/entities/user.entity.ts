@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Vehicle } from 'src/parking/entities';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -25,4 +26,7 @@ export class User {
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CLIENTE })
   role: UserRole;
+
+  @OneToMany(() => Vehicle, (vehicle) => vehicle.owner)
+  vehicles: Vehicle[];
 }
