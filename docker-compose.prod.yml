@@ -1,0 +1,5 @@
+services:
+  parking-api:
+    env_file:
+      - .production.env
+    command: npm run start:prod

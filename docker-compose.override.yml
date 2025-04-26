@@ -1,0 +1,4 @@
+services:
+  parking-api:
+    env_file:
+      - .env
