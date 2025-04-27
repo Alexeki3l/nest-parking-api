@@ -35,5 +35,8 @@ lerna-debug.log*
 
 # Local env files
 .env
+.production.env
+
+package-lock.json
 
 

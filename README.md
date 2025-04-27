@@ -24,7 +24,16 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Aplicacion realizada sobre el framework [Nest](https://github.com/nestjs/nest).
+Para su ejecucion:
+
+- Clonar el repositorio
+- Crear un archivo .env dentro del mismo para las variable de entorno siguiendo el esquema de nombre descrito ene l archivo .example.
+- Ejecutar el comando:
+
+```bash
+$ docker-compose up --build
+```
 
 ## Installation
 
@@ -38,11 +47,19 @@ $ npm install
 # development
 $ npm run start
 
-# watch mode
+# watch mode local
 $ npm run start:dev
 
 # production mode
 $ npm run start:prod
+
+# run docker-compose development mode
+$ docker-compose up --build
+
+# run docker-compose production mode
+$ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+
+
 ```
 
 ## Test
@@ -56,6 +73,9 @@ $ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
+
+# run the tests before the aplication
+$ npm run start:checked
 ```
 
 ## Support
