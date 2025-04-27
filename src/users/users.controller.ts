@@ -31,6 +31,7 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);

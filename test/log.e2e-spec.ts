@@ -1,26 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
-import { DataSource } from 'typeorm';
 import { AuthPage } from './pages/auth.page';
 import { UsersPage } from './pages/users.page';
 import { LogPage } from './pages/log.page';
+import { createUserAdminDTO } from './utils/user-admin.constant';
 
 describe('LogController (e2e)', () => {
   let app: INestApplication;
   let usersPage: UsersPage;
   let authPage: AuthPage;
-  let adminJwtToken: string;
+  let access_token: string;
 
   let logPage: LogPage;
-
-  const createUserAdminDTO = {
-    email: 'adminTest@asda.com',
-    password: 'admin',
-    name: 'admin',
-    phone: '+55 123456789',
-    role: 'admin',
-  };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -37,23 +29,10 @@ describe('LogController (e2e)', () => {
     usersPage = new UsersPage(app);
     authPage = new AuthPage(app);
 
-    const dataSource = app.get(DataSource);
-    const userRepository = dataSource.getRepository('User');
-
-    const users = await userRepository.findBy({
-      email: createUserAdminDTO.email,
-    });
-
-    if (!users.length) {
-      await usersPage.create(createUserAdminDTO);
-    }
-
-    const loginAdminResponse = await authPage.login(
-      createUserAdminDTO.email,
-      createUserAdminDTO.password,
-    );
-
-    adminJwtToken = loginAdminResponse.body.access_token;
+    ({ access_token } = await usersPage.createAndLogin(
+      authPage,
+      createUserAdminDTO,
+    ));
   });
 
   afterAll(async () => {
@@ -61,7 +40,7 @@ describe('LogController (e2e)', () => {
   });
 
   it('/logs (GET) debe retornar todos los logs', async () => {
-    const response = await logPage.getLogs(adminJwtToken);
+    const response = await logPage.getLogs(access_token);
     expect(response.status).toBe(200);
   });
 });

@@ -2,31 +2,22 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { DataSource } from 'typeorm';
 import { AuthPage } from './pages/auth.page';
 import { ParkingPage } from './pages/parking.page';
 import { UsersPage } from './pages/users.page';
-import { fakeVehicle } from './utils/create-vehicle-fake';
-import { fakeUser } from './utils/create-users-fake';
+import { fakeVehicle } from './utils/vehicle-fake';
+import { fakeUser } from './utils/users-fake';
+import { createUserAdminDTO } from './utils/user-admin.constant';
 
 describe('ParkingController (e2e)', () => {
   let app: INestApplication;
   let clientJwtToken: string;
-  let adminJwtToken: string;
-  let createUserClientResponse: request.Response;
-  // let createUserAdminResponse: request.Response;
+  let access_token: string;
+  let createUserResponse: request.Response;
 
   let authPage: AuthPage;
   let usersPage: UsersPage;
   let parkingPage: ParkingPage;
-
-  const createUserAdminDTO = {
-    email: 'adminTest@asda.com',
-    password: 'admin',
-    name: 'admin',
-    phone: '+55 123456789',
-    role: 'admin',
-  };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -43,42 +34,27 @@ describe('ParkingController (e2e)', () => {
     authPage = new AuthPage(app);
     parkingPage = new ParkingPage(app);
 
-    const dataSource = app.get(DataSource);
-    const userRepository = dataSource.getRepository('User');
-
-    const users = await userRepository.findBy({
-      email: createUserAdminDTO.email,
-    });
-
-    if (!users.length) {
-      await usersPage.create(createUserAdminDTO);
-    }
-
-    const loginAdminResponse = await authPage.login(
-      createUserAdminDTO.email,
-      createUserAdminDTO.password,
-    );
-
-    adminJwtToken = loginAdminResponse.body.access_token;
+    ({ access_token, createUserResponse } = await usersPage.createAndLogin(
+      authPage,
+      createUserAdminDTO,
+    ));
   });
 
   afterAll(async () => {
-    const responseData = JSON.parse(createUserClientResponse.text);
-    await usersPage.delete(adminJwtToken, responseData.id);
+    const responseData = JSON.parse(createUserResponse.text);
+    await usersPage.delete(access_token, responseData.id);
     await app.close();
   });
 
   it('/parking/reserve (POST) debe reservar un parking', async () => {
     const createUserTestClientDTO = fakeUser('cliente');
 
-    createUserClientResponse = await usersPage.create(createUserTestClientDTO);
+    ({ access_token, createUserResponse } = await usersPage.createAndLogin(
+      authPage,
+      createUserTestClientDTO,
+    ));
 
-    const loginClientResponse = await authPage.login(
-      createUserTestClientDTO.email,
-      createUserTestClientDTO.password,
-    );
-
-    clientJwtToken = loginClientResponse.body.access_token;
+    clientJwtToken = access_token;
 
     const response = await parkingPage.reserveParking(
       clientJwtToken,
@@ -108,19 +84,15 @@ describe('ParkingController (e2e)', () => {
   });
 
   it('/parking/reserve (GET) debe devolver todos los parkings', async () => {
-    const createUserTestClientDTO = fakeUser('EMPLEADO');
+    const createUserTestEmpleadoDTO = fakeUser('EMPLEADO');
 
-    createUserClientResponse = await usersPage.create(createUserTestClientDTO);
+    ({ access_token, createUserResponse } = await usersPage.createAndLogin(
+      authPage,
+      createUserTestEmpleadoDTO,
+    ));
 
-    const loginClientResponse = await authPage.login(
-      createUserTestClientDTO.email,
-      createUserTestClientDTO.password,
-    );
-
-    clientJwtToken = loginClientResponse.body.access_token;
-
+    clientJwtToken = access_token;
     const response = await parkingPage.getParkings(clientJwtToken);
-    // console.log(response)
     expect(response.status).toBe(200);
   });
 });
