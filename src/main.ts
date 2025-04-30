@@ -20,7 +20,6 @@ async function bootstrap() {
     .setTitle('Parking API')
     .setDescription('API para gestión de parking')
     .setVersion('1.0')
-    .addTag('parking')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

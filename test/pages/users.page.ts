@@ -6,7 +6,6 @@ import { DataSource } from 'typeorm';
 export class UsersPage {
   constructor(private app: INestApplication) {}
 
-  // HTTP
   async create({
     email,
     password,
@@ -49,7 +48,6 @@ export class UsersPage {
       .set('Authorization', `Bearer ${token}`);
   }
 
-  // Methods auxiliary
   /**
    *
    * @param authPage
