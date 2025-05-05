@@ -5,13 +5,15 @@ import { AppModule } from '../src/app.module';
 import { AuthPage } from './pages/auth.page';
 import { ParkingPage } from './pages/parking.page';
 import { UsersPage } from './pages/users.page';
-import { fakeVehicle } from './utils/vehicle-fake';
 import { fakeUser } from './utils/users-fake';
 import { createUserAdminDTO } from './utils/user-admin.constant';
+import { fakeParking } from './utils/parking-fake';
+import { fakeReservation } from './utils/reserve-data-fake';
 
 describe('ParkingController (e2e)', () => {
   let app: INestApplication;
   let clientJwtToken: string;
+  let parkingData: any;
   let access_token: string;
   let createUserResponse: request.Response;
 
@@ -41,13 +43,26 @@ describe('ParkingController (e2e)', () => {
   });
 
   afterAll(async () => {
-    const responseData = JSON.parse(createUserResponse.text);
-    await usersPage.delete(access_token, responseData.id);
+    if (createUserResponse) {
+      const responseData = JSON.parse(createUserResponse.text);
+      await usersPage.delete(access_token, responseData.id);
+    }
+
     await app.close();
   });
 
-  it('/parking/reserve (POST) debe reservar un parking', async () => {
-    const createUserTestClientDTO = fakeUser('cliente');
+  it('api/parking/ (POST) debe crear un parking', async () => {
+    const response = await parkingPage.createParking(
+      access_token,
+      fakeParking(),
+    );
+    parkingData = response.body;
+
+    expect(response.status).toBe(201);
+  });
+
+  it('/parking/{{id}}/reserve (POST) debe reservar un parking slot por numero de slot', async () => {
+    const createUserTestClientDTO = fakeUser('CLIENTE');
 
     ({ access_token, createUserResponse } = await usersPage.createAndLogin(
       authPage,
@@ -56,43 +71,57 @@ describe('ParkingController (e2e)', () => {
 
     clientJwtToken = access_token;
 
+    const fakeReservationData = fakeReservation(parkingData.slots.length);
+
     const response = await parkingPage.reserveParking(
       clientJwtToken,
-      fakeVehicle(),
+      parkingData.id,
+      fakeReservationData,
     );
     expect(response.status).toBe(201);
-
-    expect(response.body).toHaveProperty('startDateTime');
-    expect(response.body).toHaveProperty('vehicle');
-    expect(response.body.vehicle).toHaveProperty('licensePlate');
-    expect(response.body.vehicle).toHaveProperty('owner');
-    expect(response.body.vehicle.owner).toHaveProperty('email');
   });
 
-  it('/parking/reserve (POST) debe devolver un error 400 si no se envia el vehiculo', async () => {
-    const response = await parkingPage.reserveParking(clientJwtToken, {});
-    expect(response.status).toBe(400);
-    expect(response.body.message).toEqual([
-      'licensePlate should not be empty',
-      'licensePlate must be a string',
-      'brand should not be empty',
-      'brand must be a string',
-      'model should not be empty',
-      'model must be a string',
-      'startDateTime must be a valid ISO 8601 date string',
-    ]);
-  });
-
-  it('/parking/reserve (GET) debe devolver todos los parkings', async () => {
-    const createUserTestEmpleadoDTO = fakeUser('EMPLEADO');
+  it('/parking/{{id}}/reserve_without (POST) debe reservar un parking slot sin numero de slot', async () => {
+    const createUserTestClientDTO = fakeUser('CLIENTE');
 
     ({ access_token, createUserResponse } = await usersPage.createAndLogin(
       authPage,
-      createUserTestEmpleadoDTO,
+      createUserTestClientDTO,
     ));
 
     clientJwtToken = access_token;
-    const response = await parkingPage.getParkings(clientJwtToken);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { slotNumber, ...fakeReservationData } = fakeReservation(
+      parkingData.slots.length,
+    );
+
+    const response = await parkingPage.reserveParking(
+      clientJwtToken,
+      parkingData.id,
+      fakeReservationData,
+    );
+    expect(response.status).toBe(201);
+  });
+
+  it('/parking/reserve (POST) debe devolver un error 400 si no se envia el vehiculo', async () => {
+    const response = await parkingPage.reserveParking(
+      clientJwtToken,
+      parkingData.id,
+      {},
+    );
+    expect(response.status).toBe(400);
+    expect(response.body.message).toEqual([
+      'startDateTime must be a valid ISO 8601 date string',
+      'endDateTime must be a valid ISO 8601 date string',
+      'licensePlate must be a string',
+      'brand must be a string',
+      'model must be a string',
+    ]);
+  });
+
+  it('/parking/{{id}} (DELETE) debe eliminar el parking', async () => {
+    const response = await parkingPage.deleteParking(parkingData.id);
     expect(response.status).toBe(200);
   });
 });

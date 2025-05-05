@@ -8,7 +8,7 @@ import { LogsModule } from './logs/logs.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { databaseConfig } from './config/database.config';
 import { Vehicle } from './parking/entities/vehicle.entity';
-import { Parking } from './parking/entities';
+import { Parking, ParkingSlot, Reservation } from './parking/entities';
 import { User } from './users/entities/user.entity';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -27,7 +27,7 @@ dotenv.config();
       useFactory: (): TypeOrmModuleOptions => ({
         entities:
           process.env.NODE_ENV === 'test'
-            ? [User, Vehicle, Parking]
+            ? [User, Vehicle, Parking, ParkingSlot, Reservation]
             : [__dirname + '/../**/*.entity.js'],
         ...databaseConfig,
       }),

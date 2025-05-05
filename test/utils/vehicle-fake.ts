@@ -5,6 +5,5 @@ export function fakeVehicle() {
     licensePlate: faker.vehicle.vrm(),
     brand: faker.vehicle.manufacturer(),
     model: faker.vehicle.model(),
-    startDateTime: new Date(),
   };
 }
